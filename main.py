@@ -37,6 +37,7 @@ class FoodEnum(str, Enum):
     vegetables = "vegetables"
     dairy = "dairy"
 
+# Path Parameters
 @app.get("/food/{food_name}")
 async def get_food(food_name: FoodEnum):
     if food_name == FoodEnum.vegetables:
@@ -51,3 +52,44 @@ async def get_food(food_name: FoodEnum):
         "food_name": food_name,
         "message": "I like chocolate Milk"
     }
+
+# Query Parameters
+fake_item_db = [
+    { "item_name" : "Foo"},
+    { "item_name" : "Bar"},
+    { "item_name" : "Baz"},
+]
+
+@app.get("/items")
+async def list_items(skip: int = 0, limit: int = 10):
+    return fake_item_db[skip: skip + limit]
+# Optional Query and required query parameters
+@app.get("/items/{item_id}")
+async def get_item(item_id: str,
+                   sample_query_param: str,
+                   q: str|None = None,
+                   short: bool = False):
+    item = {"item_id": item_id,
+            "sample_query_param": sample_query_param}
+    if q:
+        item.update({"q":q})
+    if not short:
+        item.update({
+            "description": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
+        })
+    return item
+
+# Multiple pathes and Queries Parameters
+@app.get("/users/{user_id}/items/{item_id}")
+async def get_user_item(user_id: int, item_id: str,
+                        q:str | None = None, short: bool= False):
+
+    item = {"item_id": item_id, "owner_id": user_id}
+    if q:
+        item.update({"q":q})
+    if not short:
+        item.update({
+            "description": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
+        })
+    return item
+
